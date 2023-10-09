@@ -30,19 +30,16 @@ install_pip() {
 }
 
 # Function to install PyInstaller if not already installed
-install_pyinstaller() {
-    if ! command_exists pyinstaller; then
-        echo "Installing PyInstaller..."
-        pip install pyinstaller >/dev/null 2>&1
-        echo "PyInstaller installation complete.."
-    fi
+install_packages() {
+    echo "Installing dependencies.."
+    pip install -r requirements.txt >/dev/null
 }
 
 # Install dependencies
 install_pip
 
 # Install PyInstaller
-install_pyinstaller
+install_packages
 
 # Run PyInstaller to create the executable
 echo "Building $APP_NAME..."

@@ -13,12 +13,8 @@ rem Define variables
 set APP_NAME=DepXCogntioSetup
 set SCRIPT_NAME=.\src\run.py
 
-rem Check if PyInstaller is installed
-pyinstaller --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo PyInstaller is not installed. Installing...
-    pip install pyinstaller
-)
+rem Installing dependencies
+pip install -r requirements.txt
 
 rem Run PyInstaller to create the executable
 pyinstaller --name %APP_NAME% --onefile %SCRIPT_NAME%
