@@ -1,7 +1,7 @@
 @echo off
 
 :: Define variables
-set APP_NAME=your_app_name
+set APP_NAME=DepXCogntioSetup
 
 :: Path to the executable file
 set EXECUTABLE_PATH=.\dist\%APP_NAME%.exe

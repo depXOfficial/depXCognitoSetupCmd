@@ -10,8 +10,8 @@ if %errorlevel% neq 0 (
 )
 
 rem Define variables
-set APP_NAME=your_app_name
-set SCRIPT_NAME=your_script.py
+set APP_NAME=DepXCogntioSetup
+set SCRIPT_NAME=.\src\run.py
 
 rem Check if PyInstaller is installed
 pyinstaller --version >nul 2>&1
