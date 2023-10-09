@@ -34,7 +34,7 @@ from lib.ec2.ec2 import create_key_pair_ec2
 from lib.cleanup.cleanup import cleanup
 from lib.helpers.helpers import create_clients, generate_dashed_line
 
-from lib.vars.vars import COGNITO_CALLBACK, USER_DATA_JSON
+from lib.vars.vars import COGNITO_CALLBACK, USER_DATA_JSON, USER_DATA_DIR
 from lib.exceptions.exceptions import InvalidCSVFormat, InvalidCredentialsError
 
 def create_new_user(
@@ -102,126 +102,135 @@ def create_new_user(
 if __name__ == "__main__":
     callback_url = COGNITO_CALLBACK
 
-    """ print(create_new_user()) """
-    while True:
-        print("\nChoose one of the following options:-\n")
-        print("\t1. Create New User Credentials for Cognito")
-        print("\n\t2. Set AWS Credentials Path")
-        print("\t3. List stored values")
-        print("\n\t4. Cleanup (Deletes UserPool, IdentityPool, Role and Policy created by the script)")
-        print("\t5. Exit\n")
-        option = input("Enter your choice: ")
-        print("\n")
+    os.makedirs(USER_DATA_DIR, exist_ok=True)
+    
+    try:
+        while True:
+            print("\nChoose one of the following options:-\n")
+            print("\t1. Create New User Credentials for Cognito")
+            print("\n\t2. Set AWS Credentials Path")
+            print("\t3. List stored values")
+            print("\n\t4. Cleanup (Deletes UserPool, IdentityPool, Role and Policy created by the script)")
+            print("\t5. Exit\n")
+            option = input("Enter your choice: ")
+            print("\n")
 
 
-        if option == "1":
-            try:
-                store_aws_creds_in_env_variables()
-            except Exception as e:
-                print("|--> Error: ", str(e))
-                continue
+            if option == "1":
+                try:
+                    store_aws_creds_in_env_variables()
+                except Exception as e:
+                    print("|--> Error: ", str(e))
+                    continue
 
-            cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client = create_clients() 
+                cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client = create_clients() 
 
-            user_data = create_new_user(cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client)
-            if user_data is not None:
-                print("\n")
-                generate_dashed_line()
-                print("\n")
-                print("Username         : ", user_data["Email"])
-                print("Password         : ", user_data["Password"])
-                print("CognitoUserID    : ", user_data["CognitoUserID"])
-                print("CognitoClientId  : ", user_data["CognitoUserPoolClientID"])
-                print("IdentityPoolId   : ", user_data["IdentityPoolID"])
-                print(f"\nNOTE: Make sure you change the permissions of the public key generated. \nRun the command: \"sudo chmod 600 {user_data['EC2KeyPairLoc']}\"")
-                print("\n")
-                generate_dashed_line()
+                user_data = create_new_user(cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client)
+                if user_data is not None:
+                    print("\n")
+                    generate_dashed_line()
+                    print("\n")
+                    print("Username         : ", user_data["Email"])
+                    print("Password         : ", user_data["Password"])
+                    print("CognitoUserID    : ", user_data["CognitoUserID"])
+                    print("CognitoClientId  : ", user_data["CognitoUserPoolClientID"])
+                    print("IdentityPoolId   : ", user_data["IdentityPoolID"])
+                    print(f"\nNOTE: Make sure you change the permissions of the public key generated. \nRun the command: \"sudo chmod 600 {user_data['EC2KeyPairLoc']}\"")
+                    print("\n")
+                    generate_dashed_line()
 
+                    file = open(USER_DATA_JSON)
+                    vals = json.load(file)
+                    file.close()
+
+                    for key in user_data.keys():
+                        if user_data[key] is not None:
+                            vals[key] = user_data[key]
+
+                    file = open(USER_DATA_JSON, 'w')
+                    json.dump(vals, file)
+                    file.close()
+
+            elif option == "2":
+                print("|--> Setting AWS Credentials Path...")
+                creds_path = input("\nEnter AWS CREDENTIALS absolute path: ")
+                creds_path = creds_path.strip()
+
+                while not os.path.exists(creds_path) or not os.path.isfile(creds_path) or creds_path == "" or creds_path == None:
+                    error = f"|--> Invalid AWS CREDENTIALS PATH {creds_path}: "
+                    
+                    if creds_path == "":
+                        error += "Cannot be empty!"
+                    elif creds_path == None:
+                        error += "Cannot be None!"
+                    elif not os.path.exists(creds_path):
+                        error += "Path does not exist!"
+                    elif not os.path.isfile(creds_path):
+                        error += "Path is not of a file!"
+
+                    print(error)
+                    creds_path = input("\nEnter correct AWS CREDENTIALS path: ")
+                
+                try:
+                    store_credentials_from_file(creds_path)
+                except InvalidCSVFormat:
+                    print("|--> Invalid row format. Each row should have exactly 2 columns (Access Key, Secret Key).")
+                except Exception as e:
+                    print("|--> An error occurred: ", e)
+                    continue
+
+                if not check_credentials_validity_from_env():
+                    continue
+
+                print(f"\n|--> AWS CREDENTIALS PATH set to {creds_path}")
+
+            elif option == "3":
+                if not os.path.exists(USER_DATA_JSON):
+                    print("|--> User data file not found")
+                    continue
+
+                print("\n|--> Listing stored values...\n")
                 file = open(USER_DATA_JSON)
                 vals = json.load(file)
                 file.close()
 
-                for key in user_data.keys():
-                    if user_data[key] is not None:
-                        vals[key] = user_data[key]
+                print("\n")
+                generate_dashed_line()
+                print("Username                 : ", vals['Email'])
+                print("Password                 : ", vals['Password'])
+                print("CognitoUserID            : ", vals['CognitoUserID'])
+                print("CognitoUserPoolID        : ", vals['CognitoUserPoolID'])
+                print("CognitoUserPoolClientID  : ", vals['CognitoUserPoolClientID'])
+                print(f"CognitoUserPoolDomain    :  https://{vals['CognitoUserPoolDomain']}.auth.ap-south-1.amazoncognito.com")
+                print("IdentityPoolID           : ", vals['IdentityPoolID'])
+                print("RoleArn                  : ", vals['RoleArn'])
+                print("RoleName                 : ", vals['RoleName'])
+                print("PolicyArn                : ", vals['PolicyArn'])
+                print("CredentialsFilepath      : ", vals['AwsCredsPath'])
+                print("KeyPairLocation          : ", vals['EC2KeyPairLoc'])
+                generate_dashed_line()
+                print("\n")
 
-                file = open(USER_DATA_JSON, 'w')
-                json.dump(vals, file)
-                file.close()
+            elif option == "4":
+                try:
+                    store_aws_creds_in_env_variables()
+                except Exception as e:
+                    print("|--> Error: ", str(e))
+                    continue
 
-        elif option == "2":
-            print("|--> Setting AWS Credentials Path...")
-            creds_path = input("\nEnter AWS CREDENTIALS absolute path: ")
-            creds_path = creds_path.strip()
-
-            while not os.path.exists(creds_path) or not os.path.isfile(creds_path) or creds_path == "" or creds_path == None:
-                error = f"|--> Invalid AWS CREDENTIALS PATH {creds_path}: "
-                
-                if creds_path == "":
-                    error += "Cannot be empty!"
-                elif creds_path == None:
-                    error += "Cannot be None!"
-                elif not os.path.exists(creds_path):
-                    error += "Path does not exist!"
-                elif not os.path.isfile(creds_path):
-                    error += "Path is not of a file!"
-
-                print(error)
-                creds_path = input("\nEnter correct AWS CREDENTIALS path: ")
-            
-            try:
-                store_credentials_from_file(creds_path)
-            except InvalidCSVFormat:
-                print("|--> Invalid row format. Each row should have exactly 2 columns (Access Key, Secret Key).")
-            except Exception as e:
-                print("|--> An error occurred: ", e)
+                cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client = create_clients() 
+        
+                file = open(USER_DATA_JSON)
+                cleanup(cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client, json.load(file))
                 continue
 
-            if not check_credentials_validity_from_env():
+            elif option == "5":
+                print("|--> Exiting...\n")
+                break
+
+            else:
+                print("|--> Invalid option!\n")
                 continue
 
-            print(f"\n|--> AWS CREDENTIALS PATH set to {creds_path}")
-
-        elif option == "3":
-            print("\n|--> Listing stored values...\n")
-            file = open(USER_DATA_JSON)
-            vals = json.load(file)
-            file.close()
-
-            print("\n")
-            generate_dashed_line()
-            print("Username                 : ", vals['Email'])
-            print("Password                 : ", vals['Password'])
-            print("CognitoUserID            : ", vals['CognitoUserID'])
-            print("CognitoUserPoolID        : ", vals['CognitoUserPoolID'])
-            print("CognitoUserPoolClientID  : ", vals['CognitoUserPoolClientID'])
-            print(f"CognitoUserPoolDomain    :  https://{vals['CognitoUserPoolDomain']}.auth.ap-south-1.amazoncognito.com")
-            print("IdentityPoolID           : ", vals['IdentityPoolID'])
-            print("RoleArn                  : ", vals['RoleArn'])
-            print("RoleName                 : ", vals['RoleName'])
-            print("PolicyArn                : ", vals['PolicyArn'])
-            print("CredentialsFilepath      : ", vals['AwsCredsPath'])
-            print("KeyPairLocation          : ", vals['EC2KeyPairLoc'])
-            generate_dashed_line()
-            print("\n")
-
-        elif option == "4":
-            try:
-                store_aws_creds_in_env_variables()
-            except Exception as e:
-                print("|--> Error: ", str(e))
-                continue
-
-            cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client = create_clients() 
-    
-            file = open(USER_DATA_JSON)
-            cleanup(cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client, json.load(file))
-            break
-
-        elif option == "5":
-            print("|--> Exiting...\n")
-            break
-
-        else:
-            print("Invalid option!\n")
-            continue
+    except KeyboardInterrupt:
+        print("\n|--> Exiting...\n")

@@ -37,7 +37,7 @@ def store_aws_creds_in_env_variables():
                     store_credentials_from_file(creds_path)
                     return
                         
-                print("|--> AWS Credentials not found in user_data.json")
+                print("|--> AWS Credentials not found. Creating a new one...")
                 creds_path = input("\nEnter new credentials file path: ")
                 if not check_credentials_validity_from_file(creds_path):
                     raise Exception("Credentials Invalid")  
@@ -51,21 +51,11 @@ def store_aws_creds_in_env_variables():
                         "description": "This file is used by depX Cognito Setup utitlity. Donot modify this file or risk breaking the app"
                     }))
                     f.close()
-                    return "user_data.json contains an invalid json. Creating a new one"
+                    return "User data contains an invalid json. Creating a new one"
                 
             except Exception as e:
                 return str(e)
         
-
-""" def store_credentials_filepath_to_file(filename, credspath):
-    try:
-        file = open(filename, 'a')
-        user_json = json.load(file)
-        user_json['aws_creds_path'] = credspath
-        file.close()
-    except Exception as e:
-        print("|--> An error occurred: ", e)
- """
 def store_credentials_from_file(filename):
     with open(filename, 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
@@ -160,31 +150,3 @@ def check_credentials_validity_from_file(filename):
     except Exception as e:
         print("|--> An error occurred: ", e)
         return False
-    
-""" def check_credentials_permissions():
-    client = boto3.client(
-        'sts',
-        region_name='ap-south-1',
-        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY']
-    )
-
-    # Use the client to make a simple API call to AWS
-    response = client.get_caller_identity()
-    username = response
-
-    if not response['Arn']:
-        raise InvalidCredentialsError
-
-    # List attached policies for the user
-    attached_policies_response = client.list_attached_user_policies(UserName=user_name)
-    for attached_policy in attached_policies_response['AttachedPolicies']:
-        policy_name = attached_policy['PolicyName']
-        print(f"Attached Policy: {policy_name}")
-
-    # List inline policies for the user
-    inline_policies_response = client.list_user_policies(UserName=user_name)
-    for inline_policy_name in inline_policies_response['PolicyNames']:
-        print(f"Inline Policy: {inline_policy_name}")
-
-    print("\n") """
