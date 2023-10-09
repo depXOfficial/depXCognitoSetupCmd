@@ -3,3 +3,9 @@ __pycache__/
 ec2_key/*
 
 user_data.json
+
+build/*
+
+*.spec
+
+dist/*
