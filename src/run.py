@@ -4,6 +4,10 @@ import random
 import getpass
 import json
 
+import sys
+current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(current_dir)
+
 from lib.cognito_idp.cognito_idp import (
     create_user_pool,
     create_user_pool_client,
