@@ -34,7 +34,7 @@ install_pyinstaller() {
     if ! command_exists pyinstaller; then
         echo "Installing PyInstaller..."
         pip install pyinstaller >/dev/null 2>&1
-        echo "PyInstaller installation complete."
+        echo "PyInstaller installation complete.."
     fi
 }
 
