@@ -26,7 +26,7 @@ Installation steps are mentioned below
 
 ## Windows
 
-NOTE: You'll need python >= 3.10 installed in order to run this script
+NOTE: You'll need python >= 3.10 installed in order to run this script. You can visit https://www.python.org/downloads/
 
 Open up command prompt. Navigate to the directory of this repo and run the following commands.
 
