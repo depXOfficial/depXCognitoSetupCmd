@@ -21,7 +21,16 @@ Installation steps are mentioned below
 
 
 ## Windows
-1. Download the repo
+
+NOTE: You'll need python >= 3.10 installed in order to run this script
+
+Open up command prompt. Navigate to the directory of this repo and run the following commands.
+
+1. Run the windows installer script
   ```
-  git clone https://github.com/depXOfficial/Setup-AWS-Cognito-depX.git
+  .\windows_x64_install.bat
+  ```
+2. Run the executable
+  ```
+  .\dist\DepXCogntioSetup
   ```
