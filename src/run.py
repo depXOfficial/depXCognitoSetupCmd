@@ -38,7 +38,7 @@ from lib.ec2.ec2 import create_key_pair_ec2
 from lib.cleanup.cleanup import cleanup
 from lib.helpers.helpers import create_clients, generate_dashed_line
 
-from lib.vars.vars import COGNITO_CALLBACK, USER_DATA_JSON, USER_DATA_DIR
+from lib.vars.vars import COGNITO_CALLBACK, USER_DATA_JSON, USER_DATA_DIR, USER_EC2_DIR
 from lib.exceptions.exceptions import InvalidCSVFormat, InvalidCredentialsError
 
 def create_new_user(
@@ -86,10 +86,8 @@ def create_new_user(
         attach_policy_to_role(iam_client, user_data["RoleName"], user_data["PolicyArn"])
         attach_role_to_identity_pool(cognito_identity_pool_client, user_data["IdentityPoolID"], user_data["RoleArn"])
 
-        current_dir = os.path.dirname(os.path.dirname(__file__))
-        ec2_key_dir = os.path.join(current_dir, 'ec2_key')
-        os.makedirs(ec2_key_dir, exist_ok=True)
-        ec2_key_file = os.path.join(ec2_key_dir, f'depx-keypair-ec2-{user_id}.pem')
+        os.makedirs(USER_EC2_DIR, exist_ok=True)
+        ec2_key_file = os.path.join(USER_EC2_DIR, f'depx-keypair-ec2-{user_id}.pem')
         keydata = create_key_pair_ec2(ec2_client, user_id)
         with open(ec2_key_file, 'w') as file:
             file.write(keydata)
