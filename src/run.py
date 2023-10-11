@@ -151,9 +151,13 @@ if __name__ == "__main__":
                         if user_data[key] is not None:
                             vals[key] = user_data[key]
 
-                    file = open(USER_DATA_JSON, 'w')
+                    """ file = open(USER_DATA_JSON, 'w')
                     json.dump(vals, file)
-                    file.close()
+                    file.close() """
+                    with open(USER_DATA_JSON, 'w') as f:
+                        json_str = json.dumps(vals)
+                        f.write(json_str)
+                        f.close()
 
             elif option == "2":
                 print("|--> Setting AWS Credentials Path...")
