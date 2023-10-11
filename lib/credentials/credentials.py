@@ -15,46 +15,44 @@ def validate_user_data_json(dir, path):
                 "description": "This file is used by depX Cognito Setup utitlity. Donot modify this file or risk breaking the app"
             }))
             f.close()
-    
-    return True
 
 def store_aws_creds_in_env_variables():
+    validate_user_data_json(USER_DATA_DIR, USER_DATA_JSON)
+    f = open(USER_DATA_JSON, 'r')
     creds_path = os.environ.get('AWS_CREDENTIALS_PATH', None)
     if creds_path == None:
-        if validate_user_data_json(USER_DATA_DIR, USER_DATA_JSON):
-            f = open(USER_DATA_JSON, 'r')
-            try:
-                vals = json.load(f)
-                creds_path = vals.get('AwsCredsPath', None)
-                if creds_path != None and creds_path != '':
-                    inp = input(f"Credentials file {creds_path} was found. Would you like to proceed with it? (y/n)(Default: y): ")
-                    if inp == "n":
-                        creds_path = input("\nEnter new credentials file path: ")
-                        
-                    if not check_credentials_validity_from_file(creds_path):
-                        raise Exception("Credentials Invalid")
-                                   
-                    store_credentials_from_file(creds_path)
-                    return
-                        
-                print("|--> AWS Credentials not found. Creating a new one...")
-                creds_path = input("\nEnter new credentials file path: ")
+        try:
+            vals = json.load(f)
+            creds_path = vals.get('AwsCredsPath', None)
+            if creds_path != None and creds_path != '':
+                inp = input(f"Credentials file {creds_path} was found. Would you like to proceed with it? (y/n)(Default: y): ")
+                if inp == "n":
+                    creds_path = input("\nEnter new credentials file path: ")
+                    
                 if not check_credentials_validity_from_file(creds_path):
-                    raise Exception("Credentials Invalid")  
+                    raise Exception("Credentials Invalid")
                                 
                 store_credentials_from_file(creds_path)
                 return
+                    
+            print("|--> AWS Credentials not found. Creating a new one...")
+            creds_path = input("\nEnter new credentials file path: ")
+            if not check_credentials_validity_from_file(creds_path):
+                raise Exception("Credentials Invalid")  
+                            
+            store_credentials_from_file(creds_path)
+            return
 
-            except json.JSONDecodeError:
-                with open(USER_DATA_JSON, 'w') as f:
-                    f.write(json.dumps({
-                        "description": "This file is used by depX Cognito Setup utitlity. Donot modify this file or risk breaking the app"
-                    }))
-                    f.close()
-                    return "User data contains an invalid json. Creating a new one"
-                
-            except Exception as e:
-                return str(e)
+        except json.JSONDecodeError:
+            with open(USER_DATA_JSON, 'w') as f:
+                f.write(json.dumps({
+                    "description": "This file is used by depX Cognito Setup utitlity. Donot modify this file or risk breaking the app"
+                }))
+                f.close()
+                return "User data contains an invalid json. Creating a new one"
+            
+        except Exception as e:
+            return str(e)
         
 def store_credentials_from_file(filename):
     with open(filename, 'r') as csv_file:
