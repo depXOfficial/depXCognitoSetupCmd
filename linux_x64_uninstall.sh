@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define variables
-APP_NAME="DepXCogntioSetup"
+APP_NAME="DepXCognitoSetup"
 
 # Path to the executable file
 EXECUTABLE_PATH="./dist/$APP_NAME"
@@ -11,7 +11,7 @@ if [ -e "$EXECUTABLE_PATH" ]; then
     echo "Uninstalling $APP_NAME..."
     
     # Remove the executable file
-    rm -f "$EXECUTABLE_PATH" DepXCogntioSetup.spec
+    rm -f "$EXECUTABLE_PATH"
     
     echo "$APP_NAME has been uninstalled."
 else
