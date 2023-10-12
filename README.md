@@ -5,9 +5,12 @@ This repo will first time setup AWS Cognito for depX users. This software is sti
 2. https://k21academy.com/amazon-web-services/create-access-and-secret-keys-in-aws/
 3. https://youtu.be/HuE-QhrmE1c?si=59YCh7dZb-HhjtsQ
 
-Installation steps are mentioned below
+## Run
+You can download the binary from the releases or install it using the instructions in the next section
 
-## Linux x64
+## Installation
+
+### Linux x64
 1. Download the repo
   ```
   git clone https://github.com/depXOfficial/Setup-AWS-Cognito-depX.git
@@ -24,7 +27,7 @@ Installation steps are mentioned below
 ![image](https://github.com/depXOfficial/Setup-AWS-Cognito-depX/assets/47640633/eb92e966-d363-499c-a21d-9b08e4faa15c)
 
 
-## Windows
+### Windows
 
 NOTE: You'll need python >= 3.10 installed in order to run this script. You can visit https://www.python.org/downloads/
 
