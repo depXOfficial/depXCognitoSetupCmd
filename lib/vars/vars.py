@@ -4,7 +4,7 @@ import sys
 SERVER_NAME      = 'depx.in'
 AWS_AUTH_URL     = f'https://api.{SERVER_NAME}/aws'
 """ AWS_AUTH_URL     = f'http://localhost:6006/aws' """
-COGNITO_CALLBACK = f'{AWS_AUTH_URL}/cognito-credentials/callback'
+COGNITO_CALLBACK = f'{AWS_AUTH_URL}/app/cognito-credentials/callback'
 
 if getattr(sys, 'frozen', False):
     USER_DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(sys.executable)), 'user_data')
