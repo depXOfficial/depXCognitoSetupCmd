@@ -102,8 +102,6 @@ def create_new_user(
     return user_data
 
 if __name__ == "__main__":
-    callback_url = COGNITO_CALLBACK
-
     os.makedirs(USER_DATA_DIR, exist_ok=True)
     
     try:
