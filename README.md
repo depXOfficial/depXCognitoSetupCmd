@@ -14,7 +14,7 @@ You can create an IAM user and generate permanent security credentials by checki
 3. https://youtu.be/HuE-QhrmE1c?si=59YCh7dZb-HhjtsQ
 
 ## Run
-You can download the binary from the releases or install it using the instructions in the next section
+You can download the binary from the releases section or install it using the instructions in the next section
 
 ## Installation
 
