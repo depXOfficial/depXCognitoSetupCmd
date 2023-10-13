@@ -28,6 +28,9 @@ def store_aws_creds_in_env_variables():
                 inp = input(f"Credentials file {creds_path} was found. Would you like to proceed with it? (y/n)(Default: y): ")
                 if inp == "n":
                     creds_path = input("\nEnter new credentials file path: ")
+                    while not os.path.exists(creds_path) or not os.path.isfile(creds_path) or creds_path == "" or creds_path == None:
+                        print(f"\n|--> Invalid AWS credentials filepath {creds_path}: ")
+                        creds_path = input("\nEnter correct AWS credentials filepath: ")
                     
                 if not check_credentials_validity_from_file(creds_path):
                     raise Exception("Credentials Invalid")
@@ -120,7 +123,7 @@ def check_credentials_validity_from_file(filename):
                 access_key = row[0].strip()
                 secret_key = row[1].strip()
 
-                print("|--> Checking credentials validity...")
+                print("\n|--> Checking credentials validity...")
             # Create a Boto3 client using the credentials
             client = boto3.client(
                 'sts',

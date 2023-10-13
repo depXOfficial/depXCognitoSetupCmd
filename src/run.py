@@ -237,4 +237,4 @@ if __name__ == "__main__":
                 continue
 
     except KeyboardInterrupt:
-        print("\n|--> Exiting...\n")
+        print("\n\n|--> Exiting...\n")
