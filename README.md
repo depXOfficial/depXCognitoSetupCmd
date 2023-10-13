@@ -1,5 +1,13 @@
 # Setup-AWS-Cognito-depX
-This repo will first time setup AWS Cognito for depX users. This software is still in alpha. Make sure you have an active AWS account and have generated security credentials for your IAM user. If not, you can checkout the following links:-
+This repo will help depx users with their first time setup of AWS Cognito. This software is still in alpha. 
+
+### Pre-requisites
+
+1. AWS account
+2. IAM User with admin access
+3. Permanent Security credentials
+
+You can create an IAM user and generate permanent security credentials by checking out the following links:-
 
 1. https://docs.aws.amazon.com/IAM/latest/UserGuide/security-creds.html
 2. https://k21academy.com/amazon-web-services/create-access-and-secret-keys-in-aws/
