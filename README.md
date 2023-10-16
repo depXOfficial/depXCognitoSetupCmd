@@ -31,7 +31,7 @@ You can download the binary from the releases section or install it using the in
   ```
 3. Run the executable
 ```
-./dist/DepXCogntioSetup
+./dist/DepXCognitoSetup
 ```
 ![image](https://github.com/depXOfficial/Setup-AWS-Cognito-depX/assets/47640633/eb92e966-d363-499c-a21d-9b08e4faa15c)
 
@@ -48,5 +48,5 @@ Open up command prompt. Navigate to the directory of this repo and run the follo
   ```
 2. Run the executable
   ```
-  .\dist\DepXCogntioSetup
+  .\dist\DepXCognitoSetup
   ```
