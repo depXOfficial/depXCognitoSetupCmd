@@ -3,6 +3,15 @@ import string
 import random
 import getpass
 import json
+import argparse
+
+parser = argparse.ArgumentParser(description="Create new user credentials for Cognito")
+parser.add_argument("-t", "--test", action="store_true", help="Test mode")
+
+args = parser.parse_args()
+
+if args.test:
+    os.environ["DEV"] = "true"
 
 import sys
 current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -73,6 +82,13 @@ def create_new_user(
         
 
         user_data["CognitoUserPoolID"] = create_user_pool(cognito_idp_client, user_id)
+        
+        # callback_url = ""
+        # if not prod:
+        #     callback_url = COGNITO_CALLBACK_DEV
+        # else:
+        #     callback_url = COGNITO_CALLBACK
+            
         user_data["CognitoUserPoolClientID"] = create_user_pool_client(cognito_idp_client, user_data["CognitoUserPoolID"], COGNITO_CALLBACK, user_id)
         user_data["CognitoUserPoolDomain"] = create_user_pool_domain(cognito_idp_client, user_data["CognitoUserPoolID"], user_id)
         
@@ -103,7 +119,7 @@ def create_new_user(
 
 if __name__ == "__main__":
     os.makedirs(USER_DATA_DIR, exist_ok=True)
-    
+        
     try:
         while True:
             print("\nChoose one of the following options:-\n")
