@@ -119,6 +119,9 @@ def create_new_user(
 
 if __name__ == "__main__":
     os.makedirs(USER_DATA_DIR, exist_ok=True)
+    
+    if os.environ.get("DEV") is not None:
+        print("\n\n----------------RUNNING IN TEST MODE----------------\n\n")
         
     try:
         while True:
