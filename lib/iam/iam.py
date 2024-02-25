@@ -72,6 +72,15 @@ def create_policy(client, user_id):
                             ]
                         }
                     }
+                },
+                {
+                    "Sid": "VisualEditor8",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:CreateBucket",
+                        "s3:DeleteBucket"
+                    ],
+                    "Resource": "*"
                 }
             ]
         }
