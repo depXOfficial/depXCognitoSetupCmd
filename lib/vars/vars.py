@@ -13,8 +13,10 @@ SERVER_NAME      = 'depx.in'
 if os.environ.get("DEV") is not None:
     # AWS_AUTH_URL     = f'http://localhost:6000/aws'
     AWS_AUTH_URL     = f'http://localhost:8000/csp/aws'
+elif os.environ.get("STAGE") is not None:
+    AWS_AUTH_URL     = f'https://staging-api.{SERVER_NAME}/csp/aws'
 else:
-    AWS_AUTH_URL     = f'https://api.{SERVER_NAME}/aws'
+    AWS_AUTH_URL     = f'https://api.{SERVER_NAME}/csp/aws'
 
 # COGNITO_CALLBACK = f'{AWS_AUTH_URL}/cognito-credentials/callback'
 COGNITO_CALLBACK = f'{AWS_AUTH_URL}/cognito-connect/callback'

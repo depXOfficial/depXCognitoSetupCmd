@@ -6,12 +6,15 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser(description="Create new user credentials for Cognito")
-parser.add_argument("-t", "--test", action="store_true", help="Test mode")
+parser.add_argument("-d", "--dev", action="store_true", help="Dev mode")
+parser.add_argument("-s", "--staging", action="store_true", help="Staging mode")
 
 args = parser.parse_args()
 
-if args.test:
+if args.dev:
     os.environ["DEV"] = "true"
+elif args.staging:
+    os.environ["STAGE"] = "true"
 
 import sys
 current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -88,6 +91,7 @@ def create_new_user(
         #     callback_url = COGNITO_CALLBACK_DEV
         # else:
         #     callback_url = COGNITO_CALLBACK
+        # print("COGNITO CALLBACK ----------> ", COGNITO_CALLBACK)
             
         user_data["CognitoUserPoolClientID"] = create_user_pool_client(cognito_idp_client, user_data["CognitoUserPoolID"], COGNITO_CALLBACK, user_id)
         user_data["CognitoUserPoolDomain"] = create_user_pool_domain(cognito_idp_client, user_data["CognitoUserPoolID"], user_id)
@@ -121,7 +125,9 @@ if __name__ == "__main__":
     os.makedirs(USER_DATA_DIR, exist_ok=True)
     
     if os.environ.get("DEV") is not None:
-        print("\n\n----------------RUNNING IN TEST MODE----------------\n\n")
+        print("\n\n----------------RUNNING IN DEV MODE----------------\n\n")
+    elif os.environ.get("STAGE") is not None:
+        print("\n\n----------------RUNNING IN STAGE MODE----------------\n\n")
         
     try:
         while True:
