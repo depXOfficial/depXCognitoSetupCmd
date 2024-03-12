@@ -145,6 +145,7 @@ def create_user_pool_client(client, user_pool_id, callback_url, user_id):
             AllowedOAuthScopes=[
                 'openid',
                 'email',
+                'aws.cognito.signin.user.admin',
             ],
             ReadAttributes=read_attributes,
             WriteAttributes=write_attributes,

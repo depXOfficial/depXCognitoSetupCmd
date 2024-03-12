@@ -9,3 +9,5 @@ build/*
 *.spec
 
 dist/*
+
+test.py

@@ -10,35 +10,53 @@ def create_policy(client, user_id):
             "Version": "2012-10-17",
             "Statement": [
                 {
-                    "Effect": "Allow",
-                    "Action": [
-                        "cognito-identity:GetCredentialsForIdentity"
-                    ],
-                    "Resource": [
-                        "*"
-                    ]
-                },
-                {
-                    "Action": "ec2:*",
-                    "Effect": "Allow",
-                    "Resource": "*"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": "elasticloadbalancing:*",
-                    "Resource": "*"
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": "cloudwatch:*",
-                    "Resource": "*"
-                },
-                {
+                    "Sid": "VisualEditor0",
                     "Effect": "Allow",
                     "Action": "autoscaling:*",
                     "Resource": "*"
                 },
                 {
+                    "Sid": "VisualEditor1",
+                    "Effect": "Allow",
+                    "Action": "cloudwatch:*",
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "VisualEditor2",
+                    "Effect": "Allow",
+                    "Action": "cognito-identity:GetCredentialsForIdentity",
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "VisualEditor3",
+                    "Effect": "Allow",
+                    "Action": [
+                        "cognito-idp:GlobalSignOut",
+                        "cognito-idp:GetUser",
+                        "cognito-idp:RevokeToken"
+                    ],
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "VisualEditor4",
+                    "Effect": "Allow",
+                    "Action": "ec2:*",
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "VisualEditor5",
+                    "Effect": "Allow",
+                    "Action": "elasticloadbalancing:*",
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "VisualEditor6",
+                    "Effect": "Allow",
+                    "Action": "elasticloadbalancing:*",
+                    "Resource": "*"
+                },
+                {
+                    "Sid": "VisualEditor7",
                     "Effect": "Allow",
                     "Action": "iam:CreateServiceLinkedRole",
                     "Resource": "*",
@@ -54,6 +72,15 @@ def create_policy(client, user_id):
                             ]
                         }
                     }
+                },
+                {
+                    "Sid": "VisualEditor8",
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:CreateBucket",
+                        "s3:DeleteBucket"
+                    ],
+                    "Resource": "*"
                 }
             ]
         }
