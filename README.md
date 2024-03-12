@@ -48,5 +48,5 @@ Open up command prompt. Navigate to the directory of this repo and run the follo
   ```
 2. Run the executable
   ```
-  .\dist\DepXCognitoSetup
+  .\dist\DepXCognitoSetup\DepXCognitoSetup
   ```
