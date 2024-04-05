@@ -17,6 +17,7 @@ elif args.staging:
     os.environ["STAGE"] = "true"
 
 import sys
+
 current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(current_dir)
 
@@ -25,24 +26,21 @@ from lib.cognito_idp.cognito_idp import (
     create_user_pool_client,
     create_user_pool_domain,
     create_user_pool_user,
-    set_user_pool_user_password
+    set_user_pool_user_password,
 )
 
 from lib.cognito_identity.cognito_identity import (
-    create_identity_pool, 
-    create_iam_role, 
-    attach_role_to_identity_pool
+    create_identity_pool,
+    create_iam_role,
+    attach_role_to_identity_pool,
 )
 
-from lib.iam.iam import (
-    create_policy, 
-    attach_policy_to_role
-)
+from lib.iam.iam import create_policy, attach_policy_to_role
 
 from lib.credentials.credentials import (
-    store_aws_creds_in_env_variables, 
+    store_aws_creds_in_env_variables,
     store_credentials_from_file,
-    check_credentials_validity_from_env
+    check_credentials_validity_from_env,
 )
 
 from lib.credentials.validate import validate_password, validate_email
@@ -53,25 +51,26 @@ from lib.helpers.helpers import create_clients, generate_dashed_line
 from lib.vars.vars import COGNITO_CALLBACK, USER_DATA_JSON, USER_DATA_DIR, USER_EC2_DIR
 from lib.exceptions.exceptions import InvalidCSVFormat, InvalidCredentialsError
 
+
 def create_new_user(
-    cognito_idp_client, 
-    cognito_identity_pool_client, 
-    iam_client, ec2_client
+    cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client
 ):
     user_data = {}
-    user_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=14))
-    
+    user_id = "".join(random.choices(string.ascii_lowercase + string.digits, k=14))
+
     try:
-        user_data["AwsCredsPath"] = os.environ.get('AWS_CREDENTIALS_PATH', None)
+        user_data["AwsCredsPath"] = os.environ.get("AWS_CREDENTIALS_PATH", None)
 
         username = input("Enter email (This will be your aws cognito username): ")
         while not validate_email(username):
-            print("|--> Invalid email!")   
+            print("|--> Invalid email!")
             username = input("\nEnter a valid email: ")
 
         password = getpass.getpass(prompt="Enter password: ")
         while not validate_password(password):
-            print("|--> The password should have atleast one number, one uppercase letter, one lowercase letter, one special character and more than 8 characters")
+            print(
+                "|--> The password should have atleast one number, one uppercase letter, one lowercase letter, one special character and more than 8 characters"
+            )
             password = getpass.getpass(prompt="\nEnter password: ")
 
         reenter_password = getpass.getpass(prompt="Re-enter password: ")
@@ -82,34 +81,55 @@ def create_new_user(
         user_data["Email"] = username
         user_data["Password"] = password
         user_data["CognitoUserID"] = user_id
-        
 
         user_data["CognitoUserPoolID"] = create_user_pool(cognito_idp_client, user_id)
-        
+
         # callback_url = ""
         # if not prod:
         #     callback_url = COGNITO_CALLBACK_DEV
         # else:
         #     callback_url = COGNITO_CALLBACK
         # print("COGNITO CALLBACK ----------> ", COGNITO_CALLBACK)
-            
-        user_data["CognitoUserPoolClientID"] = create_user_pool_client(cognito_idp_client, user_data["CognitoUserPoolID"], COGNITO_CALLBACK, user_id)
-        user_data["CognitoUserPoolDomain"] = create_user_pool_domain(cognito_idp_client, user_data["CognitoUserPoolID"], user_id)
-        
-        create_user_pool_user(cognito_idp_client, user_data["CognitoUserPoolID"], username)
-        set_user_pool_user_password(cognito_idp_client, user_data["CognitoUserPoolID"], username, password)
 
-        user_data["IdentityPoolID"] = create_identity_pool(cognito_identity_pool_client, user_data["CognitoUserPoolID"], user_data["CognitoUserPoolClientID"], user_id)
+        user_data["CognitoUserPoolClientID"] = create_user_pool_client(
+            cognito_idp_client,
+            user_data["CognitoUserPoolID"],
+            COGNITO_CALLBACK,
+            user_id,
+        )
+        user_data["CognitoUserPoolDomain"] = create_user_pool_domain(
+            cognito_idp_client, user_data["CognitoUserPoolID"], user_id
+        )
 
-        user_data["RoleArn"], user_data["RoleName"] = create_iam_role(iam_client, user_data["IdentityPoolID"], user_id)
+        create_user_pool_user(
+            cognito_idp_client, user_data["CognitoUserPoolID"], username
+        )
+        set_user_pool_user_password(
+            cognito_idp_client, user_data["CognitoUserPoolID"], username, password
+        )
+
+        user_data["IdentityPoolID"] = create_identity_pool(
+            cognito_identity_pool_client,
+            user_data["CognitoUserPoolID"],
+            user_data["CognitoUserPoolClientID"],
+            user_id,
+        )
+
+        user_data["RoleArn"], user_data["RoleName"] = create_iam_role(
+            iam_client, user_data["IdentityPoolID"], user_id
+        )
         user_data["PolicyArn"] = create_policy(iam_client, user_id)
         attach_policy_to_role(iam_client, user_data["RoleName"], user_data["PolicyArn"])
-        attach_role_to_identity_pool(cognito_identity_pool_client, user_data["IdentityPoolID"], user_data["RoleArn"])
+        attach_role_to_identity_pool(
+            cognito_identity_pool_client,
+            user_data["IdentityPoolID"],
+            user_data["RoleArn"],
+        )
 
         os.makedirs(USER_EC2_DIR, exist_ok=True)
-        ec2_key_file = os.path.join(USER_EC2_DIR, f'depx-keypair-ec2-{user_id}.pem')
+        ec2_key_file = os.path.join(USER_EC2_DIR, f"depx-keypair-ec2-{user_id}.pem")
         keydata = create_key_pair_ec2(ec2_client, user_id)
-        with open(ec2_key_file, 'w') as file:
+        with open(ec2_key_file, "w") as file:
             file.write(keydata)
         user_data["EC2KeyPairLoc"] = ec2_key_file
 
@@ -121,25 +141,27 @@ def create_new_user(
 
     return user_data
 
+
 if __name__ == "__main__":
     os.makedirs(USER_DATA_DIR, exist_ok=True)
-    
+
     if os.environ.get("DEV") is not None:
         print("\n\n----------------RUNNING IN DEV MODE----------------\n\n")
     elif os.environ.get("STAGE") is not None:
         print("\n\n----------------RUNNING IN STAGE MODE----------------\n\n")
-        
+
     try:
         while True:
             print("\nChoose one of the following options:-\n")
             print("\t1. Create New User Credentials for Cognito")
             print("\n\t2. Set AWS Credentials Path")
             print("\t3. List stored values")
-            print("\n\t4. Cleanup (Deletes UserPool, IdentityPool, Role and Policy created by the script)")
+            print(
+                "\n\t4. Cleanup (Deletes UserPool, IdentityPool, Role and Policy created by the script)"
+            )
             print("\t5. Exit\n")
             option = input("Enter your choice: ")
             print("\n")
-
 
             if option == "1":
                 try:
@@ -148,9 +170,19 @@ if __name__ == "__main__":
                     print("|--> Error: ", str(e))
                     continue
 
-                cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client = create_clients() 
+                (
+                    cognito_idp_client,
+                    cognito_identity_pool_client,
+                    iam_client,
+                    ec2_client,
+                ) = create_clients()
 
-                user_data = create_new_user(cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client)
+                user_data = create_new_user(
+                    cognito_idp_client,
+                    cognito_identity_pool_client,
+                    iam_client,
+                    ec2_client,
+                )
                 if user_data is not None:
                     print("\n")
                     generate_dashed_line()
@@ -160,7 +192,9 @@ if __name__ == "__main__":
                     print("CognitoUserID    : ", user_data["CognitoUserID"])
                     print("CognitoClientId  : ", user_data["CognitoUserPoolClientID"])
                     print("IdentityPoolId   : ", user_data["IdentityPoolID"])
-                    print(f"\nNOTE: Make sure you change the permissions of the public key generated. \nRun the command: \"sudo chmod 600 {user_data['EC2KeyPairLoc']}\"")
+                    print(
+                        f"\nNOTE: Make sure you change the permissions of the public key generated. \nRun the command: \"sudo chmod 600 {user_data['EC2KeyPairLoc']}\""
+                    )
                     print("\n")
                     generate_dashed_line()
 
@@ -175,7 +209,7 @@ if __name__ == "__main__":
                     """ file = open(USER_DATA_JSON, 'w')
                     json.dump(vals, file)
                     file.close() """
-                    with open(USER_DATA_JSON, 'w') as f:
+                    with open(USER_DATA_JSON, "w") as f:
                         json_str = json.dumps(vals)
                         f.write(json_str)
                         f.close()
@@ -185,9 +219,14 @@ if __name__ == "__main__":
                 creds_path = input("\nEnter AWS CREDENTIALS absolute path: ")
                 creds_path = creds_path.strip()
 
-                while not os.path.exists(creds_path) or not os.path.isfile(creds_path) or creds_path == "" or creds_path == None:
+                while (
+                    not os.path.exists(creds_path)
+                    or not os.path.isfile(creds_path)
+                    or creds_path == ""
+                    or creds_path == None
+                ):
                     error = f"|--> Invalid AWS CREDENTIALS PATH {creds_path}: "
-                    
+
                     if creds_path == "":
                         error += "Cannot be empty!"
                     elif creds_path == None:
@@ -199,11 +238,13 @@ if __name__ == "__main__":
 
                     print(error)
                     creds_path = input("\nEnter correct AWS CREDENTIALS path: ")
-                
+
                 try:
                     store_credentials_from_file(creds_path)
                 except InvalidCSVFormat:
-                    print("|--> Invalid row format. Each row should have exactly 2 columns (Access Key, Secret Key).")
+                    print(
+                        "|--> Invalid row format. Each row should have exactly 2 columns (Access Key, Secret Key)."
+                    )
                 except Exception as e:
                     print("|--> An error occurred: ", e)
                     continue
@@ -225,18 +266,20 @@ if __name__ == "__main__":
 
                 print("\n")
                 generate_dashed_line()
-                print("Username                 : ", vals['Email'])
-                print("Password                 : ", vals['Password'])
-                print("CognitoUserID            : ", vals['CognitoUserID'])
-                print("CognitoUserPoolID        : ", vals['CognitoUserPoolID'])
-                print("CognitoUserPoolClientID  : ", vals['CognitoUserPoolClientID'])
-                print(f"CognitoUserPoolDomain    :  https://{vals['CognitoUserPoolDomain']}.auth.ap-south-1.amazoncognito.com")
-                print("IdentityPoolID           : ", vals['IdentityPoolID'])
-                print("RoleArn                  : ", vals['RoleArn'])
-                print("RoleName                 : ", vals['RoleName'])
-                print("PolicyArn                : ", vals['PolicyArn'])
-                print("CredentialsFilepath      : ", vals['AwsCredsPath'])
-                print("KeyPairLocation          : ", vals['EC2KeyPairLoc'])
+                print("Username                 : ", vals["Email"])
+                print("Password                 : ", vals["Password"])
+                print("CognitoUserID            : ", vals["CognitoUserID"])
+                print("CognitoUserPoolID        : ", vals["CognitoUserPoolID"])
+                print("CognitoUserPoolClientID  : ", vals["CognitoUserPoolClientID"])
+                print(
+                    f"CognitoUserPoolDomain    :  https://{vals['CognitoUserPoolDomain']}.auth.ap-south-1.amazoncognito.com"
+                )
+                print("IdentityPoolID           : ", vals["IdentityPoolID"])
+                print("RoleArn                  : ", vals["RoleArn"])
+                print("RoleName                 : ", vals["RoleName"])
+                print("PolicyArn                : ", vals["PolicyArn"])
+                print("CredentialsFilepath      : ", vals["AwsCredsPath"])
+                print("KeyPairLocation          : ", vals["EC2KeyPairLoc"])
                 generate_dashed_line()
                 print("\n")
 
@@ -247,10 +290,21 @@ if __name__ == "__main__":
                     print("|--> Error: ", str(e))
                     continue
 
-                cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client = create_clients() 
-        
+                (
+                    cognito_idp_client,
+                    cognito_identity_pool_client,
+                    iam_client,
+                    ec2_client,
+                ) = create_clients()
+
                 file = open(USER_DATA_JSON)
-                cleanup(cognito_idp_client, cognito_identity_pool_client, iam_client, ec2_client, json.load(file))
+                cleanup(
+                    cognito_idp_client,
+                    cognito_identity_pool_client,
+                    iam_client,
+                    ec2_client,
+                    json.load(file),
+                )
                 continue
 
             elif option == "5":

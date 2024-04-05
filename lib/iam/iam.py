@@ -1,6 +1,7 @@
 from random import randint
 import json
 
+
 def create_policy(client, user_id):
 
     print("|--> Creating IAM policy...")
@@ -12,52 +13,6 @@ def create_policy(client, user_id):
                 {
                     "Sid": "VisualEditor0",
                     "Effect": "Allow",
-                    "Action": "autoscaling:*",
-                    "Resource": "*"
-                },
-                {
-                    "Sid": "VisualEditor1",
-                    "Effect": "Allow",
-                    "Action": "cloudwatch:*",
-                    "Resource": "*"
-                },
-                {
-                    "Sid": "VisualEditor2",
-                    "Effect": "Allow",
-                    "Action": "cognito-identity:GetCredentialsForIdentity",
-                    "Resource": "*"
-                },
-                {
-                    "Sid": "VisualEditor3",
-                    "Effect": "Allow",
-                    "Action": [
-                        "cognito-idp:GlobalSignOut",
-                        "cognito-idp:GetUser",
-                        "cognito-idp:RevokeToken"
-                    ],
-                    "Resource": "*"
-                },
-                {
-                    "Sid": "VisualEditor4",
-                    "Effect": "Allow",
-                    "Action": "ec2:*",
-                    "Resource": "*"
-                },
-                {
-                    "Sid": "VisualEditor5",
-                    "Effect": "Allow",
-                    "Action": "elasticloadbalancing:*",
-                    "Resource": "*"
-                },
-                {
-                    "Sid": "VisualEditor6",
-                    "Effect": "Allow",
-                    "Action": "elasticloadbalancing:*",
-                    "Resource": "*"
-                },
-                {
-                    "Sid": "VisualEditor7",
-                    "Effect": "Allow",
                     "Action": "iam:CreateServiceLinkedRole",
                     "Resource": "*",
                     "Condition": {
@@ -68,44 +23,55 @@ def create_policy(client, user_id):
                                 "elasticloadbalancing.amazonaws.com",
                                 "spot.amazonaws.com",
                                 "spotfleet.amazonaws.com",
-                                "transitgateway.amazonaws.com"
+                                "transitgateway.amazonaws.com",
                             ]
                         }
-                    }
+                    },
                 },
                 {
-                    "Sid": "VisualEditor8",
+                    "Sid": "VisualEditor1",
                     "Effect": "Allow",
                     "Action": [
-                        "s3:CreateBucket",
-                        "s3:DeleteBucket"
+                        "cognito-idp:GlobalSignOut",
+                        "cognito-idp:GetUser",
+                        "elasticbeanstalk:TerminateEnvironment",
+                        "s3:*",
+                        "elasticloadbalancing:*",
+                        "autoscaling:*",
+                        "elasticbeanstalk:CreateApplication",
+                        "elasticbeanstalk:DescribeEnvironments",
+                        "cloudwatch:*",
+                        "elasticbeanstalk:CreateEnvironment",
+                        "elasticbeanstalk:DeleteApplication",
+                        "elasticbeanstalk:DescribeApplications",
+                        "ec2:*",
+                        "cognito-idp:RevokeToken",
+                        "cognito-identity:GetCredentialsForIdentity",
                     ],
-                    "Resource": "*"
-                }
-            ]
+                    "Resource": "*",
+                },
+            ],
         }
 
         response = client.create_policy(
-            PolicyName=f'depx-policy-{user_id}',
+            PolicyName=f"depx-policy-{user_id}",
             PolicyDocument=json.dumps(policy),
-            Description='This policy gives permission to get credentials from web identity token'
+            Description="This policy gives permission to get credentials from web identity token",
         )
 
-        policy_arn = response['Policy']['Arn']
+        policy_arn = response["Policy"]["Arn"]
         return policy_arn
 
     except Exception as e:
         print("|--> An error occurred while creating IAM Policy: ", e)
 
+
 def attach_policy_to_role(client, role_name, policy_arn):
-    
+
     print("|--> Attaching IAM policy to IAM role...")
 
     try:
-        response = client.attach_role_policy(
-            RoleName=role_name,
-            PolicyArn=policy_arn
-        )
+        response = client.attach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
 
         """ response = client.attach_role_policy(
             RoleName=role_name,
@@ -115,6 +81,7 @@ def attach_policy_to_role(client, role_name, policy_arn):
     except Exception as e:
         print("|--> An error occurred while attaching IAM Policy to IAM Role: ", e)
 
+
 def iam_role_exists(client, role_name):
     role_exists = False
     next_token = None
@@ -123,49 +90,43 @@ def iam_role_exists(client, role_name):
 
     while True:
         # Check if the identity pool exists in the current batch
-        for roles in response['Roles']:
-            if roles['RoleName'] == role_name:
+        for roles in response["Roles"]:
+            if roles["RoleName"] == role_name:
                 role_exists = True
                 break
 
         # Check if the identity pool was found or if there's more data to fetch
-        if role_exists or 'Marker' not in response:
+        if role_exists or "Marker" not in response:
             break
 
         # Set the next token for the next iteration
-        next_token = response['Marker']
+        next_token = response["Marker"]
         response = client.list_roles(MaxItems=60, Marker=next_token)
 
     return role_exists
+
 
 def policy_exists(client, policy_arn):
     policy_exists = False
     next_token = None
 
-    response = client.list_policies(
-        Scope='Local',
-        OnlyAttached=False,
-        MaxItems=60
-    )
+    response = client.list_policies(Scope="Local", OnlyAttached=False, MaxItems=60)
 
     while True:
         # Check if the identity pool exists in the current batch
-        for policies in response['Policies']:
-            if policies['Arn'] == policy_arn:
+        for policies in response["Policies"]:
+            if policies["Arn"] == policy_arn:
                 policy_exists = True
                 break
-        
+
         # Check if the identity pool was found or if there's more data to fetch
-        if policy_exists or 'Marker' not in response:
+        if policy_exists or "Marker" not in response:
             break
 
         # Set the next token for the next iteration
-        next_token = response['Marker']
+        next_token = response["Marker"]
         response = client.list_policies(
-            Scope='Local',
-            OnlyAttached=False,
-            Marker=next_token,
-            MaxItems=60
+            Scope="Local", OnlyAttached=False, Marker=next_token, MaxItems=60
         )
 
     return policy_exists
