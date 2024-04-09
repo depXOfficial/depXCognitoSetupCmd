@@ -1,4 +1,3 @@
-from random import randint
 import json
 import boto3
 
@@ -90,7 +89,8 @@ def create_policy(client, user_id):
         response = client.create_policy(
             PolicyName=f"depx-policy-{user_id}",
             PolicyDocument=json.dumps(policy),
-            Description="This policy gives permission to get credentials from web identity token",
+            Description="""This policy gives permission to get credentials
+            from web identity token""",
         )
 
         policy_arn = response["Policy"]["Arn"]
@@ -105,7 +105,7 @@ def attach_policy_to_role(client, role_name, policy_arn):
     print("|--> Attaching IAM policy to IAM role...")
 
     try:
-        response = client.attach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
+        client.attach_role_policy(RoleName=role_name, PolicyArn=policy_arn)
 
         """ response = client.attach_role_policy(
             RoleName=role_name,
@@ -113,7 +113,11 @@ def attach_policy_to_role(client, role_name, policy_arn):
         ) """
 
     except Exception as e:
-        print("|--> An error occurred while attaching IAM Policy to IAM Role: ", e)
+        print(
+            "|--> An error occurred while attaching \
+            IAM Policy to IAM Role: ",
+            e,
+        )
 
 
 def iam_role_exists(client, role_name):
