@@ -80,8 +80,8 @@ def create_policy(client, user_id):
                     "Effect": "Allow",
                     "Action": "iam:PassRole",
                     "Resource": [
-                        "arn:aws:iam::231754098679:role/depx/*",
-                        "arn:aws:iam::231754098679:instance-profile/depx/*",
+                        f"arn:aws:iam::{account_id}:role/depx/*",
+                        f"arn:aws:iam::{account_id}:instance-profile/depx/*",
                     ],
                 },
             ],
