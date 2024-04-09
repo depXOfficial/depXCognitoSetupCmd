@@ -1,10 +1,15 @@
 from random import randint
 import json
+import boto3
 
 
 def create_policy(client, user_id):
 
     print("|--> Creating IAM policy...")
+
+    client = boto3.client("sts", region_name="ap-south-1")
+    response = client.get_caller_identity()
+    account_id = response["Account"]
 
     try:
         policy = {
@@ -13,42 +18,71 @@ def create_policy(client, user_id):
                 {
                     "Sid": "VisualEditor0",
                     "Effect": "Allow",
-                    "Action": "iam:CreateServiceLinkedRole",
+                    "Action": [
+                        "codepipeline:DeleteWebhook",
+                        "codepipeline:ListPipelineExecutions",
+                        "iam:RemoveRoleFromInstanceProfile",
+                        "iam:CreateRole",
+                        "cloudformation:DescribeStackResource",
+                        "iam:AttachRolePolicy",
+                        "autoscaling:*",
+                        "iam:AddRoleToInstanceProfile",
+                        "cloudformation:DescribeStackEvents",
+                        "iam:DetachRolePolicy",
+                        "elasticbeanstalk:DescribeEnvironments",
+                        "iam:ListAttachedRolePolicies",
+                        "codepipeline:ListPipelines",
+                        "iam:ListPolicies",
+                        "iam:GetRole",
+                        "codepipeline:ListWebhooks",
+                        "cloudformation:DescribeStackResources",
+                        "iam:DeleteRole",
+                        "cloudformation:DescribeStacks",
+                        "elasticbeanstalk:ListPlatformVersions",
+                        "elasticbeanstalk:CreateApplication",
+                        "elasticbeanstalk:ListPlatformBranches",
+                        "cloudwatch:*",
+                        "elasticbeanstalk:CreateEnvironment",
+                        "cloudformation:DeleteStack",
+                        "ec2:*",
+                        "iam:DeleteServiceLinkedRole",
+                        "iam:CreateInstanceProfile",
+                        "cognito-idp:GlobalSignOut",
+                        "elasticbeanstalk:TerminateEnvironment",
+                        "codepipeline:CreatePipeline",
+                        "codepipeline:DeletePipeline",
+                        "iam:ListInstanceProfilesForRole",
+                        "cognito-idp:RevokeToken",
+                        "elasticbeanstalk:DeleteApplication",
+                        "elasticbeanstalk:DescribeApplications",
+                        "iam:DeleteInstanceProfile",
+                        "codepipeline:RegisterWebhookWithThirdParty",
+                        "cloudformation:ListStacks",
+                        "cognito-idp:GetUser",
+                        "iam:GetInstanceProfile",
+                        "s3:*",
+                        "iam:ListRoles",
+                        "elasticloadbalancing:*",
+                        "iam:ListInstanceProfiles",
+                        "elasticbeanstalk:ListAvailableSolutionStacks",
+                        "iam:CreatePolicy",
+                        "codepipeline:DeregisterWebhookWithThirdParty",
+                        "iam:CreateServiceLinkedRole",
+                        "cloudformation:CreateStack",
+                        "sts:GetCallerIdentity",
+                        "cognito-identity:GetCredentialsForIdentity",
+                        "codepipeline:PutWebhook",
+                    ],
                     "Resource": "*",
-                    "Condition": {
-                        "StringEquals": {
-                            "iam:AWSServiceName": [
-                                "autoscaling.amazonaws.com",
-                                "ec2scheduled.amazonaws.com",
-                                "elasticloadbalancing.amazonaws.com",
-                                "spot.amazonaws.com",
-                                "spotfleet.amazonaws.com",
-                                "transitgateway.amazonaws.com",
-                            ]
-                        }
-                    },
                 },
                 {
                     "Sid": "VisualEditor1",
                     "Effect": "Allow",
-                    "Action": [
-                        "cognito-idp:GlobalSignOut",
-                        "cognito-idp:GetUser",
-                        "elasticbeanstalk:TerminateEnvironment",
-                        "s3:*",
-                        "elasticloadbalancing:*",
-                        "autoscaling:*",
-                        "elasticbeanstalk:CreateApplication",
-                        "elasticbeanstalk:DescribeEnvironments",
-                        "cloudwatch:*",
-                        "elasticbeanstalk:CreateEnvironment",
-                        "elasticbeanstalk:DeleteApplication",
-                        "elasticbeanstalk:DescribeApplications",
-                        "ec2:*",
-                        "cognito-idp:RevokeToken",
-                        "cognito-identity:GetCredentialsForIdentity",
+                    "Action": "iam:PassRole",
+                    "Resource": [
+                        "arn:aws:iam::231754098679:role/depx/*",
+                        "arn:aws:iam::231754098679:instance-profile/depx/*",
                     ],
-                    "Resource": "*",
                 },
             ],
         }
