@@ -6,8 +6,8 @@ def create_policy(client, user_id):
 
     print("|--> Creating IAM policy...")
 
-    client = boto3.client("sts", region_name="ap-south-1")
-    response = client.get_caller_identity()
+    boto3_client = boto3.client("sts", region_name="ap-south-1")
+    response = boto3_client.get_caller_identity()
     account_id = response["Account"]
 
     try:
@@ -42,6 +42,7 @@ def create_policy(client, user_id):
                         "elasticbeanstalk:ListPlatformBranches",
                         "cloudwatch:*",
                         "elasticbeanstalk:CreateEnvironment",
+                        "cloudformation:GetTemplate",
                         "cloudformation:DeleteStack",
                         "ec2:*",
                         "iam:DeleteServiceLinkedRole",
@@ -51,9 +52,9 @@ def create_policy(client, user_id):
                         "codepipeline:CreatePipeline",
                         "codepipeline:DeletePipeline",
                         "iam:ListInstanceProfilesForRole",
-                        "cognito-idp:RevokeToken",
                         "elasticbeanstalk:DeleteApplication",
                         "elasticbeanstalk:DescribeApplications",
+                        "cognito-idp:RevokeToken",
                         "iam:DeleteInstanceProfile",
                         "codepipeline:RegisterWebhookWithThirdParty",
                         "cloudformation:ListStacks",
@@ -69,8 +70,8 @@ def create_policy(client, user_id):
                         "iam:CreateServiceLinkedRole",
                         "cloudformation:CreateStack",
                         "sts:GetCallerIdentity",
-                        "cognito-identity:GetCredentialsForIdentity",
                         "codepipeline:PutWebhook",
+                        "cognito-identity:GetCredentialsForIdentity",
                     ],
                     "Resource": "*",
                 },
@@ -79,8 +80,8 @@ def create_policy(client, user_id):
                     "Effect": "Allow",
                     "Action": "iam:PassRole",
                     "Resource": [
-                        f"arn:aws:iam::{account_id}:role/depx/*",
-                        f"arn:aws:iam::{account_id}:instance-profile/depx/*",
+                        "arn:aws:iam::231754098679:role/depx/*",
+                        "arn:aws:iam::231754098679:instance-profile/depx/*",
                     ],
                 },
             ],
@@ -89,8 +90,7 @@ def create_policy(client, user_id):
         response = client.create_policy(
             PolicyName=f"depx-policy-{user_id}",
             PolicyDocument=json.dumps(policy),
-            Description="""This policy gives permission to get credentials
-            from web identity token""",
+            Description="This policy gives permission to get credentials from web identity token",
         )
 
         policy_arn = response["Policy"]["Arn"]
