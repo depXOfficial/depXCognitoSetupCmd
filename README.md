@@ -26,6 +26,7 @@ You can download the binary from the releases section or install it using the in
   ```
 2. Make the installer script executable
   ```
+  cd depXCognitoSetupCmd/
   chmod +x linux_x64_install.sh
   ./linux_x64_install.sh
   ```
