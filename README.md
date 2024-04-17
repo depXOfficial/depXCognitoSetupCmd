@@ -1,6 +1,8 @@
 # Setup AWS Cognito for depX
-This repo will help depx users with their first time setup of AWS Cognito.
-WARNING: This software is still in alpha. Donot run this code in a production environment. 
+This repository will help depx users with their first time setup of AWS Cognito.
+WARNING: This software is beta. Donot run this code in a production environment. 
+
+Checkout our latest documentation to get started: https://depxdocs.notion.site/Documentation-for-depX-2b4ae6f3ceda48c08926e6acd07d63b7?pvs=4
 
 ### Pre-requisites
 
