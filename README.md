@@ -22,10 +22,11 @@ You can download the binary from the releases section or install it using the in
 ### Linux x64
 1. Download the repo
   ```
-  git clone https://github.com/depXOfficial/Setup-AWS-Cognito-depX.git
+  git clone https://github.com/depXOfficial/depXCognitoSetupCmd.git
   ```
 2. Make the installer script executable
   ```
+  cd depXCognitoSetupCmd/
   chmod +x linux_x64_install.sh
   ./linux_x64_install.sh
   ```
