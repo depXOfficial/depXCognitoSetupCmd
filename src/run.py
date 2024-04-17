@@ -188,7 +188,7 @@ if __name__ == "__main__":
                     generate_dashed_line()
                     print("\n")
                     print("Username         : ", user_data["Email"])
-                    print("Password         : ", user_data["Password"])
+                    # print("Password         : ", user_data["Password"])
                     print("CognitoUserID    : ", user_data["CognitoUserID"])
                     print("CognitoClientId  : ", user_data["CognitoUserPoolClientID"])
                     print("IdentityPoolId   : ", user_data["IdentityPoolID"])
